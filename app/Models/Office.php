@@ -39,4 +39,9 @@ class Office extends Model
         
         return $this->morphMany(Image::class, 'resource');
     }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'offices_tags');
+    }
 }
