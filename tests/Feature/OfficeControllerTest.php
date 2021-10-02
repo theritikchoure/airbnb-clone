@@ -122,4 +122,61 @@ class OfficeControllerTest extends TestCase
         $this->assertEquals($user->id, $response->json('data')[0]['user']['id']);
 
     }
+
+    /**
+     * A basic feature test.
+     *
+     * @test
+     */
+
+    public function itReturnsTheNumberOfActiveReservations()
+    {
+        $office = Office::factory()->create();
+
+        Reservation::factory()->for($office)->create(['status' => Reservation::STATUS_ACTIVE]);
+        Reservation::factory()->for($office)->create(['status' => Reservation::STATUS_CANCELLED]);
+
+        $response = $this->get('/api/offices');
+        
+        $response->assertOk();
+
+        // $response->dump();
+
+        $this->assertEquals(1, $response->json('data')[0]['reservations_count']);
+    }
+
+    /**
+     * @test
+     */
+
+    public function itOrdersByDistanceWhenCoordinatesAreProvided()
+    {
+        // 38.720661384644846
+        // -9.16044783453807
+        
+        $office1 = Office::factory()->create([
+            'lat' => '39.74051727562952',
+            'lng' => '-8.770375324893696',
+            'title' => 'Leiria'
+        ]);
+
+        $office2 = Office::factory()->create([
+            'lat' => '39.07753883078113',
+            'lng' => '-9.281266331143293',
+            'title' => 'Torres Vedras'
+        ]);
+
+        // $response = $this->get('/api/offices?lat=38.720661384644846&lng=-9.16044783453807');
+
+        // $response->assertOk();
+        // // $response->dump();
+        // $this->assertEquals('Torres Vedras', $response->json('data')[0]['title']);
+        // $this->assertEquals('Leiria', $response->json('data')[1]['title']); 
+
+
+        $response = $this->get('/api/offices');
+        $response->assertOk();
+        $this->assertEquals('Leiria', $response->json('data')[0]['title']);
+        $this->assertEquals('Torres Vedras', $response->json('data')[1]['title']); 
+    }
 }

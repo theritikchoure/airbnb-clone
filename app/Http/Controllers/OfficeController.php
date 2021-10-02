@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\OfficeResource;
 use App\Models\Office;
+use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -25,7 +26,13 @@ class OfficeController extends Controller
                             fn(Builder $builder) 
                                 => $builder->whereRelation('reseravations', 'user_id', '=', request('user_id')))
                          ->latest('id')
+                         ->when(
+                             request('lat') && request('lng'),
+                             fn($builder) => $builder->nearestTo(request('lat'), request('lng')),
+                             fn($builder) => $builder->orderBy('id', 'ASC')
+                         )
                          ->with(['images', 'tags', 'user'])
+                         ->withCount(['reservations' => fn ($builder) => $builder->where('status', Reservation::STATUS_ACTIVE)])
                          ->paginate(20);
 
         return OfficeResource::collection(
