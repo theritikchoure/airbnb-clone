@@ -21,10 +21,10 @@ class OfficeController extends Controller
         $offices = Office::query()
                          ->where('approval_status', Office::APPROVAL_APPROVED)
                          ->where('hidden', false)
-                         ->when(request('host_id'), fn($builder) => $builder->whereUserId(request('host_id')))
+                         ->when(request('user_id'), fn($builder) => $builder->whereUserId(request('user_id')))
                          ->when(request('visitor_id'), 
                             fn(Builder $builder) 
-                                => $builder->whereRelation('reseravations', 'user_id', '=', request('user_id')))
+                                => $builder->whereRelation('reseravations', 'user_id', '=', request('visitor_id')))
                          ->latest('id')
                          ->when(
                              request('lat') && request('lng'),
@@ -54,7 +54,7 @@ class OfficeController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**

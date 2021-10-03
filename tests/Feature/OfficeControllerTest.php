@@ -21,14 +21,18 @@ class OfficeControllerTest extends TestCase
      *
      * @return void
      */
-    // public function testitListsAllOfficesInPaginatedWay()
-    // {
-    //     // Office::factory()->count(3)->create();
 
-    //     $response = $this->get('/api/offices');
+    /**
+     * @test
+     */
+    public function itListsAllOfficesInPaginatedWay()
+    {
+        Office::factory()->count(3)->create();
+
+        $response = $this->get('/api/offices');
         
-    //     $response->assertOk()->dump();
-    // }
+        $response->assertOk()->dump();
+    }
 
 
      /**
@@ -55,21 +59,21 @@ class OfficeControllerTest extends TestCase
      * @test
      */
 
-    // public function ItFiltersByHostId()
-    // {
-    //     Office::factory(3)->create();
+    public function ItFiltersByUserId()
+    {
+        Office::factory(3)->create();
 
-    //     $host = User::factory()->create();
+        $host = User::factory()->create();
 
-    //     $office = Office::factory()->for($host)->create();
+        $office = Office::factory()->for($host)->create();
 
-    //     $response = $this->get(
-    //         '/api/offices?host_id='.$host->id
-    //     );
+        $response = $this->get(
+            '/api/offices?user_id='.$host->id
+        );
 
-    //     $response->assertOk();
-    //     $response->assertJsonCount(1, 'data');
-    // }
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+    }
 
 
      /**
@@ -77,7 +81,7 @@ class OfficeControllerTest extends TestCase
      *
      * @test
      */
-    // public function ItFiltersByUserId()
+    // public function ItFiltersByVisitorId()
     // {
     //     Office::factory(3)->create();
 
@@ -89,7 +93,7 @@ class OfficeControllerTest extends TestCase
     //     Reservation::factory()->for($office)->for($user)->create();
         
     //     $response = $this->get(
-    //         '/api/offices?user_id='.$user->id
+    //         '/api/offices?visitor_id='.$user->id
     //     );
         
     //     $response->assertOk(200);
