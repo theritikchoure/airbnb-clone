@@ -22,7 +22,7 @@ class OfficeController extends Controller
                          ->where('approval_status', Office::APPROVAL_APPROVED)
                          ->where('hidden', false)
                          ->when(request('host_id'), fn($builder) => $builder->whereUserId(request('host_id')))
-                         ->when(request('user_id'), 
+                         ->when(request('visitor_id'), 
                             fn(Builder $builder) 
                                 => $builder->whereRelation('reseravations', 'user_id', '=', request('user_id')))
                          ->latest('id')
@@ -38,6 +38,13 @@ class OfficeController extends Controller
         return OfficeResource::collection(
             $offices
         );
+    }
+
+    public function show(Office $office)
+    {
+        $office->loadCount(['reservations' => fn ($builder) => $builder->where('status', Reservation::STATUS_ACTIVE)])
+                ->load(['images', 'tags', 'user']);
+        return OfficeResource::make($office);
     }
 
     /**
@@ -67,10 +74,7 @@ class OfficeController extends Controller
      * @param  \App\Models\Office  $office
      * @return \Illuminate\Http\Response
      */
-    public function show(Office $office)
-    {
-        //
-    }
+
 
     /**
      * Show the form for editing the specified resource.
