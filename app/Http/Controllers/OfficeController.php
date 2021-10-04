@@ -8,6 +8,8 @@ use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 
 class OfficeController extends Controller
 {
@@ -54,7 +56,31 @@ class OfficeController extends Controller
      */
     public function create()
     {
-        
+        $attributes = validator(request()->all(),
+            [
+                'title' => ['required', 'string'],
+                'description' => ['required', 'string'],
+                'lat' => ['required', 'numeric'],
+                'lng' => ['required', 'numeric'],
+                'address_line1' => ['required', 'string'],
+                'hidden' => ['bool'],
+                'price_per_day' => ['required', 'integer', 'min:100'],
+                'monthly_discount' => ['integer', 'min:0'],
+
+                'tags' => ['array'],
+                'tags.*' => ['integer', Rule::exists('tags', 'id')],
+            ] 
+        )->validate();
+
+        $attributes['approval_status'] = Office::APPROVAL_PENDING;
+
+        $office = auth()->user()->offices()->create(
+            Arr::except($attributes, ['tags'])
+        );
+
+        $office->tags()->sync($attributes['tags']);
+
+        return OfficeResource::make($office);
     }
 
     /**
